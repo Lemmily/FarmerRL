@@ -1,0 +1,16 @@
+    <resource>
+        <name> Fish </name>
+        <requiresBiome> Ocean </requiresBiome>
+        <havestable> TRUE </havestable>
+        <mineffectRadius> 100 </mineffectRadius>
+        <maxeffectRadius> 250 </maxeffectRadius>
+        <minoutput> 0.1 </minoutput>							          <!-- 0.1 t / month -->
+        <maxoutput> 5.0 </maxoutput>							          <!-- 5.0 t / month -->
+        <type> FOOD </type>								          <!-- Other posibilities are LUXORY, WEAPON, MATERIAL -->
+        <scarcity> 2000 </scarcity> 							          <!-- 1 in 2000 tiles -->
+        <duration> 7 </duration>    							                  <!-- Lasts 7 months before it rots, used later, for gameplay -->
+
+        <!-- Ignored for now.. -->
+        <duration_modifier factor="2.0" modType="resource"> Salt </duration_modifier>        <!-- Doubles duration -->
+        <output_modifer    factor="2.0" modType="biome"> Tropical Ocean </output_modifer> <!-- Doubles output if on tropical ocean -->
+</resource>
