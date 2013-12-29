@@ -29,9 +29,11 @@ class Object:
         self.x = x
     def _set_y(self,y):
         self.y = y
-    def _get_x(self):
+    @property
+    def x(self):
         return self.x
-    def _get_y(self):
+    @property
+    def y(self):
         return self.y
     
     def clear(self, cam_x = 0, cam_y =0): 
@@ -148,3 +150,22 @@ def is_blocked(x, y):
 #             return True
     return False
 
+
+def act_till(entity):
+    if entity.skills != None and entity.skills["tilling"] != None:
+        tile = R.land.getTile(entity.x,entity.y)
+        skill = entity.skills["tilling"]
+        
+        # do the skill check here.
+        
+        #with an amount to do the tilling by.
+        amount = 1
+        tile.till(amount)
+        
+        
+        
+        
+        
+        
+        
+        

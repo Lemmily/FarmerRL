@@ -67,5 +67,6 @@ class Map:
             for iy in range(h) ]
                 for ix in range(w)]
         
-        
+    def get_tile(self,x,y):
+        return tiles[x][y]
     

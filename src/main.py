@@ -48,7 +48,7 @@ fov_recompute = True
 
 def new_game():
     global mouse, key, fov_recompute, cam_x, cam_y, game_state
-    global you, map_, objects  
+    global you, land, objects  
     mouse = libtcod.Mouse()
     key = libtcod.Key()
     
@@ -58,7 +58,7 @@ def new_game():
     
     game_state = "playing"
     
-    map_ = R.map = map_plot.Map(R.MAP_WIDTH,R.MAP_HEIGHT) 
+    land = R.land = map_plot.Map(R.MAP_WIDTH,R.MAP_HEIGHT) 
     R.tiles = map_.tiles
     R.objects = objects = []
     you = R.you = entities.Player()
@@ -216,7 +216,7 @@ def clear_consoles():
             libtcod.console_set_char(con_char, x, y, " ")
                   
 def render():
-    global map_, fov_recompute
+    global fov_recompute
     
     cam_x = scrolling_map(you.x, R.MAP_VIEW_WIDTH_HALF + 1, R.MAP_VIEW_WIDTH, R.MAP_WIDTH)
     cam_y = scrolling_map(you.y, R.MAP_VIEW_HEIGHT_HALF, R.MAP_VIEW_HEIGHT, R.MAP_HEIGHT)

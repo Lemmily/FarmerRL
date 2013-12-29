@@ -37,5 +37,6 @@ con = None
 con_char = None
 inf = None
 
+land = None
 tiles = []
 objects = []
