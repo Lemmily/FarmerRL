@@ -110,6 +110,8 @@ def advance_time():
         ##
         ### Do anything that needs to be the start of the year here. AND use the new year
         ## 
+    update_msg_bar()
+    
         
 def scrolling_map(p, hs, s, m):
     """
@@ -214,6 +216,8 @@ def play_game():
         for object_ in R.objects:
             object_.clear(cam_x,cam_y)
         render()
+        if R.msg_redraw == True:
+            update_msg_bar()
 
 def clear_consoles():
     for x in range(R.MAP_VIEW_WIDTH): #this refers to the SCREEN position.
@@ -254,6 +258,23 @@ def render():
     libtcod.console_blit(con, 0, 0, R.MAP_VIEW_WIDTH, R.MAP_VIEW_HEIGHT, 0, 0, 0,0.8,1)
     libtcod.console_blit(con_char, 0, 0, R.MAP_VIEW_WIDTH, R.MAP_VIEW_HEIGHT, 0, 0, 0, 1, 0)
     libtcod.console_flush()  
+
+def update_msg_bar():
+    #libtcod.console_clear(message_bar)
+    libtcod.console_set_default_foreground(message_bar, libtcod.white)
+    libtcod.console_print_ex(message_bar, 0, 0, libtcod.BKGND_NONE, libtcod.LEFT, get_date())
+    # print the messages, one line at a time.
+    y = 2
+    for (line, colour) in R.game_msgs:
+        libtcod.console_set_default_foreground(message_bar, colour)
+        libtcod.console_print_ex(message_bar, R.MSG_X, y, libtcod.BKGND_NONE, libtcod.LEFT, line)
+        y += 1          
+    libtcod.console_blit(message_bar, 0, 0, R.PANEL_WIDTH, R.PANEL_HEIGHT, 0 , 0, R.PANEL_Y)
+    #libtcod.console_flush() #if this fluch is here it flickers the console.  
+    R.msg_redraw = False
+    
+def get_date():
+    return str(date[0]) + " " + str(date[1][0]) + " " + str(date[1][2]) + " " + str(date[2][0])
     
 def main_menu():
     
@@ -271,12 +292,11 @@ def main_menu():
         if choice == 0:
             new_game()
             play_game()
-            
         else:
             break
     
 def init():
-    global con, con_char, inf, game_msgs, date, ui
+    global con, con_char, inf, game_msgs, date, ui, message_bar
     
     
     libtcod.console_set_custom_font("data/ont_big.png",libtcod.FONT_LAYOUT_ASCII_INROW)
@@ -286,8 +306,8 @@ def init():
     R.com = con = libtcod.console_new(R.MAP_WIDTH,R.MAP_HEIGHT)
     R.con_char = con_char = libtcod.console_new(R.MAP_WIDTH, R.MAP_HEIGHT)
     
-    inf = R.inf = libtcod.console_new(R.INFO_BAR_WIDTH, R.SCREEN_HEIGHT - R.PANEL_HEIGHT)
-    
+    R.inf = inf = libtcod.console_new(R.INFO_BAR_WIDTH, R.SCREEN_HEIGHT - R.PANEL_HEIGHT)
+    R.message_bar = message_bar  = libtcod.console_new(R.PANEL_WIDTH, R.PANEL_HEIGHT)
     game_msgs = R.game_msgs = []
     
     ui = R.ui = UI.UI(con,game_msgs)

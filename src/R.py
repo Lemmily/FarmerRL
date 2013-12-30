@@ -24,7 +24,6 @@ PANEL_HEIGHT = SCREEN_HEIGHT - MAP_VIEW_HEIGHT
 PANEL_WIDTH = SCREEN_WIDTH - INFO_BAR_WIDTH
 PANEL_Y = SCREEN_HEIGHT - PANEL_HEIGHT
 
-
 MSG_X = 2
 MSG_WIDTH = SCREEN_WIDTH - 2
 MSG_HEIGHT = PANEL_HEIGHT - 1
@@ -40,3 +39,7 @@ inf = None
 land = None
 tiles = []
 objects = []
+
+
+### FLAGS
+msg_redraw = True
