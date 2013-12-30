@@ -29,6 +29,7 @@ class Object:
         self.x = x
     def _set_y(self,y):
         self.y = y
+        
     @property
     def x(self):
         return self.x

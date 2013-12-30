@@ -59,10 +59,11 @@ def new_game():
     game_state = "playing"
     
     land = R.land = map_plot.Map(R.MAP_WIDTH,R.MAP_HEIGHT) 
-    R.tiles = map_.tiles
+    R.tiles = land.tiles
     R.objects = objects = []
     you = R.you = entities.Player()
     objects.append(you)
+    
 def advance_time():
     global date, sub_turns, turns
     
