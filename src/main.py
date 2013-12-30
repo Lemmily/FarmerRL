@@ -7,7 +7,7 @@ import libtcodpy as libtcod
 import R
 import map_plot
 import UI
-from src import entities
+import entities
 
 DAYS =  [
         ['Monday', 1],
@@ -58,7 +58,7 @@ def new_game():
     
     game_state = "playing"
     
-    land = R.land = map_plot.Map(R.MAP_WIDTH,R.MAP_HEIGHT) 
+    R.land = land = map_plot.Map(R.MAP_WIDTH,R.MAP_HEIGHT) 
     R.tiles = land.tiles
     R.objects = objects = []
     you = R.you = entities.Player()
@@ -172,7 +172,12 @@ def handle_keys():
             player_move_or_attack(0, 0)
             pass  #do nothing ie wait for the monster to come to you
         else:
-            pass
+            
+            key_char = chr(key.c)
+            
+            if key_char == "t":
+                you.actions["till"](you)
+            
 def player_move_or_attack(dx,dy):
     global fov_recompute
     print "I MOVED"
@@ -184,7 +189,7 @@ def player_move_or_attack(dx,dy):
     
     fov_recompute = True
 def play_game():
-    global key, mouse
+    global key, mouse, land, you
 
     mouse = libtcod.Mouse()
     key = libtcod.Key()
@@ -217,7 +222,7 @@ def clear_consoles():
             libtcod.console_set_char(con_char, x, y, " ")
                   
 def render():
-    global fov_recompute
+    global fov_recompute, land, you
     
     cam_x = scrolling_map(you.x, R.MAP_VIEW_WIDTH_HALF + 1, R.MAP_VIEW_WIDTH, R.MAP_WIDTH)
     cam_y = scrolling_map(you.y, R.MAP_VIEW_HEIGHT_HALF, R.MAP_VIEW_HEIGHT, R.MAP_HEIGHT)
@@ -232,13 +237,13 @@ def render():
                 map_y = y + cam_y
                 if map_x < len(R.tiles) and map_y < len(R.tiles[0]):
                     tile = R.tiles[map_x][map_y]
-                    libtcod.console_set_char(con, x, y, tile.char)
-                    #libtcod.console_put_char_ex(con, x, y, tile.char, tile.fg, tile.bg)
+                    #libtcod.console_set_char(con, x, y, tile.char)
+                    libtcod.console_put_char_ex(con, x, y, tile.char, tile.fg, tile.bg)
                     libtcod.console_set_char(con_char, x, y, " ")
                 else:
                     libtcod.console_set_char_foreground(con, x, y, tile.fg)
-                    libtcod.console_set_char(con, x, y, " ")
-                    #libtcod.console_put_char_ex(con, x, y, " ", libtcod.black, libtcod.black)
+                    #libtcod.console_set_char(con, x, y, " ")
+                    libtcod.console_put_char_ex(con, x, y, " ", libtcod.black, libtcod.black)
                     libtcod.console_set_char(con_char, x, y, " ")
         for thing in R.objects:
             thing.draw(cam_x,cam_y)
@@ -246,7 +251,7 @@ def render():
         you.draw(cam_x, cam_y)
                     
     you.draw(cam_x, cam_y)
-    #libtcod.console_blit(con, 0, 0, R.MAP_VIEW_WIDTH, R.MAP_VIEW_HEIGHT, 0, 0, 0,0.8,1)
+    libtcod.console_blit(con, 0, 0, R.MAP_VIEW_WIDTH, R.MAP_VIEW_HEIGHT, 0, 0, 0,0.8,1)
     libtcod.console_blit(con_char, 0, 0, R.MAP_VIEW_WIDTH, R.MAP_VIEW_HEIGHT, 0, 0, 0, 1, 0)
     libtcod.console_flush()  
     

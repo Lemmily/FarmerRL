@@ -68,5 +68,5 @@ class Map:
                 for ix in range(w)]
         
     def get_tile(self,x,y):
-        return tiles[x][y]
+        return self.tiles[x][y]
     

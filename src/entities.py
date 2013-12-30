@@ -99,7 +99,9 @@ class Mover(Object):
 class Player(Mover):
     def __init__(self):
         Mover.__init__(self, name = "Player", char = "&")
-        self.skills = Skills()  
+        self.skills = Skills()
+        self.actions = {}
+        self.actions["till"] = act_till  
 
 class Item(Object):
     def __init__(self):
@@ -119,10 +121,9 @@ skill_list_1 = [ #// 0_name:string, 1_attribute, 2_needTraining:Boolean, 3_desc:
 # Skill manager
 class Skills:
     def __init__(self):
-        pass
         self.dict = {}
         for line in skill_list_1:
-            self.dict[line[0]] = Skill( line[0], line[1])
+            self.dict[line[0].lower()] = Skill( line[0], line[1])
         
         
     def skill_level_check(self,skill):
@@ -130,13 +131,23 @@ class Skills:
         sk_exp = self.dict[skill].exp
         
         return sk_exp #TODO: nake lookup table to look up what level the skill is at. for now just retrun this/
+    
+    def has(self, skill):
+        if self.dict.has_key(skill):
+            return True
+        return False
+    
+    def get_level(self,skill):
+        return self.dict[skill].level
 
 class Skill:
     def __init__(self,name,group="None"):
         self.name = name
         self.group = group
         self.exp = 0
-            
+        self.level = 1
+        self.aptitude =1#probably somewhere better to hold this.
+        
 def is_blocked(x, y):
     #first test the map tile
     if x > len(R.tiles) - 1 or x < 0:
@@ -152,15 +163,23 @@ def is_blocked(x, y):
     return False
 
 
+#######
+#
+#   ACTIONS
+#
+####
+
 def act_till(entity):
-    if entity.skills != None and entity.skills["tilling"] != None:
-        tile = R.land.getTile(entity.x,entity.y)
-        skill = entity.skills["tilling"]
+    print "tillllll"
+    if entity.skills and entity.skills.has("tilling"):
+        
+        tile = R.land.get_tile(entity.x,entity.y)
+        skill = entity.skills.get_level("tilling")
         
         # do the skill check here.
         
         #with an amount to do the tilling by.
-        amount = 1
+        amount = 10
         tile.till(amount)
         
         
