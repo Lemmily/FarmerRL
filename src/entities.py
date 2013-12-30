@@ -106,7 +106,20 @@ class Player(Mover):
 class Item(Object):
     def __init__(self):
         Object.__init__()
+
+plant_types = [
+               #[0_name, 1_daystoharvest, 2_daystofullharvest, 3_daysinfullharvest]
+               ["corn", 50, 25],
+               
+               ]
+
+class Plant(Object):
+    def __init__(self,type):
+        self.age = 0
+        self.harvestable = False
+        self.type = type
         
+            
 
 skill_list_1 = [ #// 0_name:string, 1_attribute, 2_needTraining:Boolean, 3_desc:String,[4_dependsOn],[5_dependants]
                  ["Appraise", "int", False, "Used to analyse an item for monetary value, and contributing factors",["none"],["none"]],
