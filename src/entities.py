@@ -108,16 +108,17 @@ class Item(Object):
         Object.__init__()
 
 plant_types = [
-               #[0_name, 1_daystoharvest, 2_daystofullharvest, 3_daysinfullharvest]
-               ["corn", 50, 25],
-               
+               #[0_name, 1_daystoharvest, 2_daystofullharvest, 3_daysinfullharvest, 4_MaxCrop]
+               ["corn", 50, 25, 15, 2],
+               ["tomato", 50, 10, 20, 10],
+               ["peas", 50, 25, 15, 10]
                ]
 
 class Plant(Object):
-    def __init__(self,type):
+    def __init__(self,type_):
         self.age = 0
         self.harvestable = False
-        self.type = type
+        self.type = type_
         
             
 
