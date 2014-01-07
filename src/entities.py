@@ -102,24 +102,41 @@ class Player(Mover):
         self.skills = Skills()
         self.actions = {}
         self.actions["till"] = act_till  
-
+        self.inventory = {"plantable": [],
+                          "produce": []}
 class Item(Object):
     def __init__(self):
         Object.__init__()
 
-plant_types = [
-               #[0_name, 1_daystoharvest, 2_daystofullharvest, 3_daysinfullharvest, 4_MaxCrop]
-               ["corn", 50, 25, 15, 2],
-               ["tomato", 50, 10, 20, 10],
-               ["peas", 50, 25, 15, 10]
-               ]
+plant_types = {
+               #name : 0_produce type, 1_characters, 2_daystoharvest, 3_daystofullharvest, 4_daysinfullharvest, 5_MaxCrop]
+               "corn": ["vegetable", [":","!"], 50, 25, 15, 2],
+               "tomato": ["vegetable", ["",""], 50, 10, 20, 10],
+               "peas": ["vegetable", ["",""], 50, 25, 15, 8],
+               "apple": ["fruit", ["", ""], 1095, 25, 15, 30],
+               "pear": ["fruit", ["", ""], 1460, 25, 15, 30],
+               }
 
-class Plant(Object):
-    def __init__(self,type_):
-        self.age = 0
-        self.harvestable = False
+class Seed(Object):
+    def __init__(self, type_, season):
         self.type = type_
+        self.season = season #planting season.
         
+        
+class Plant(Object):
+    def __init__(self,type_, produce):
+        self.age = 0
+        self.harvestable = False 
+        self.type = type_ 
+        
+    def get_produce(self):
+        return plant_types[self.type][0]
+    
+    @property
+    def char(self):
+        return self.char
+#this could also be kept in alookup table, with th eplant object just holding the type and 
+# age of the plant. Possibly the boolean for harvestable? (Probably not worth it though?)       
             
 
 skill_list_1 = [ #// 0_name:string, 1_attribute, 2_needTraining:Boolean, 3_desc:String,[4_dependsOn],[5_dependants]
@@ -197,9 +214,22 @@ def act_till(entity):
         tile.till(amount)
         
         
+def act_plant(entity, inventory = None):
+    print "plant"
+    if inventory is None:
+        if len(entity.inventory["plantable"]) > 0:
+            inventory = entity.inventory
+        else:
+            R.ui.message("There are no seeds available!", libtcod.dark_green)
+            return
+    
+    options = []
+    for plant in inventory["plantable"]:
+        options.append(plant.season + "\t: " + plant.type)
+    plant = inventory["plantable"][choice_menu("Which plant?", options)]
         
         
         
-        
-        
-        
+def choice_menu(prompt, options):
+    return R.ui.menu(prompt, options, 15)
+

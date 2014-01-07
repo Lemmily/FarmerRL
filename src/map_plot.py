@@ -33,6 +33,7 @@ class Tile:
     def field(self):
         self.plant = None
         self.fertiliser = None
+        self.type = "field"
         self.tilled = 0 #out of 100
         self.till(libtcod.random_get_int(0, 0, 30))
         
@@ -49,12 +50,17 @@ class Tile:
         return self.colour_bg
 
     def till(self,tilling):
-        self.tilled += tilling
-        if self.tilled > 100:
-            self.tilled = 100
+        if self.type is "field":
+            self.tilled += tilling
+            if self.tilled > 100:
+                self.tilled = 100
             
-        if self.tilled > 50 and self.char != "=":
-            self.char = "="
+            if self.tilled > 50 and self.char != "=":
+                self.char = "="
+    def plant(self, plant):
+        if self.type is "field":
+            self.plant = plant
+            self.char = plant.char
     
 class Map:
     def __init__(self, w, h):
