@@ -57,10 +57,12 @@ class Tile:
             
             if self.tilled > 50 and self.char != "=":
                 self.char = "="
-    def plant(self, plant):
+                
+    def sow(self, plant):
         if self.type is "field":
             self.plant = plant
             self.char = plant.char
+            self.colour_fg = libtcod.Color(10,200,30)
     
 class Map:
     def __init__(self, w, h):

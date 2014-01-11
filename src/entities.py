@@ -102,39 +102,56 @@ class Player(Mover):
         self.skills = Skills()
         self.actions = {}
         self.actions["till"] = act_till  
+        self.actions["plant"] = act_plant 
         self.inventory = {"plantable": [],
                           "produce": []}
+        self.inventory["plantable"].append(Seed("corn"))
 class Item(Object):
     def __init__(self):
         Object.__init__()
 
 plant_types = {
+               #numbering is wrong
                #name : 0_produce type, 1_characters, 2_daystoharvest, 3_daystofullharvest, 4_daysinfullharvest, 5_MaxCrop]
-               "corn": ["vegetable", [":","!"], 50, 25, 15, 2],
-               "tomato": ["vegetable", ["",""], 50, 10, 20, 10],
-               "peas": ["vegetable", ["",""], 50, 25, 15, 8],
-               "apple": ["fruit", ["", ""], 1095, 25, 15, 30],
-               "pear": ["fruit", ["", ""], 1460, 25, 15, 30],
+               "corn": ["vegetable", [":","!"], "spring", 50, 25, 15, 2],
+               "tomato": ["vegetable", ["s","$"], "spring", 50, 10, 20, 10],
+               "peas": ["vegetable", ["s","$"], "spring", 50, 25, 15, 8],
+               "apple": ["fruit", ["t", "T"], "autumn", 1095, 25, 15, 30],
+               "pear": ["fruit", ["t", "T"], "autumn", 1460, 25, 15, 30],
                }
 
 class Seed(Object):
-    def __init__(self, type_, season):
+    def __init__(self, type_):
         self.type = type_
-        self.season = season #planting season.
+        self.season = plant_types[self.type][2]#planting season.
         
         
 class Plant(Object):
-    def __init__(self,type_, produce):
+    def __init__(self,type_):
         self.age = 0
         self.harvestable = False 
         self.type = type_ 
         
-    def get_produce(self):
-        return plant_types[self.type][0]
+    def age_up(self):
+        self.age += 1
+        self.check_harvestable()
+        
+    def check_harvestable(self):
+        if self.age > plant_types[self.type][3]:
+            self.harvestable = True
     
     @property
     def char(self):
+        if self.harvestable:
+            return plant_types[self.type][1][1]
+        else:
+            return plant_types[self.type][1][0]
+        
         return self.char
+    
+    @property
+    def produce(self):
+        return plant_types[self.type][0]
 #this could also be kept in alookup table, with th eplant object just holding the type and 
 # age of the plant. Possibly the boolean for harvestable? (Probably not worth it though?)       
             
@@ -225,11 +242,26 @@ def act_plant(entity, inventory = None):
     
     options = []
     for plant in inventory["plantable"]:
-        options.append(plant.season + "\t: " + plant.type)
-    plant = inventory["plantable"][choice_menu("Which plant?", options)]
+        options.append(plant.season + " : " + plant.type)
+    choice = choice_menu("Which plant?", options, 20)
+    if choice is not -1:
+        seed = inventory["plantable"][choice]
+        tile = R.land.get_tile(entity.x,entity.y)
+        if tile.tilled > 50:
+            plant = Plant(seed.type)
+            tile.sow(plant)
+        else:
+            R.ui.message("The field isn't tilled enough.", libtcod.dark_green)
+    else:
+        R.ui.message("You have no plantable items!", libtcod.dark_green)
+        
+    
         
         
-        
-def choice_menu(prompt, options):
-    return R.ui.menu(prompt, options, 15)
+def choice_menu(prompt, options, size):
+    choice = R.ui.menu(prompt, options, size)
+    if choice is None:
+        return -1
+    else:
+        return choice 
 

@@ -135,7 +135,7 @@ def handle_mouse():
 
 
 def handle_keys():
-    
+    global fov_recompute
     if key.vk == libtcod.KEY_ENTER and key.lalt:
         #Alt+Enter: toggle fullscreen
         libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
@@ -179,6 +179,9 @@ def handle_keys():
             
             if key_char == "t":
                 you.actions["till"](you)
+            elif key_char == "p":
+                you.actions["plant"](you)
+                fov_recompute = True
             
 def player_move_or_attack(dx,dy):
     global fov_recompute
@@ -260,7 +263,7 @@ def render():
     libtcod.console_flush()  
 
 def update_msg_bar():
-    #libtcod.console_clear(message_bar)
+    libtcod.console_clear(message_bar)
     libtcod.console_set_default_foreground(message_bar, libtcod.white)
     libtcod.console_print_ex(message_bar, 0, 0, libtcod.BKGND_NONE, libtcod.LEFT, get_date())
     # print the messages, one line at a time.
@@ -297,7 +300,6 @@ def main_menu():
     
 def init():
     global con, con_char, inf, game_msgs, date, ui, message_bar
-    
     
     libtcod.console_set_custom_font("data/ont_big.png",libtcod.FONT_LAYOUT_ASCII_INROW)
     libtcod.console_init_root(R.SCREEN_WIDTH, R.SCREEN_HEIGHT, "FarmerRL", False)
