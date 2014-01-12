@@ -65,7 +65,7 @@ def new_game():
     objects.append(you)
     
 def advance_time():
-    global date, sub_turns, turns
+    global date, sub_turns, turns, msg_redraw
     
     turns += game_speed
     
@@ -110,8 +110,7 @@ def advance_time():
         ##
         ### Do anything that needs to be the start of the year here. AND use the new year
         ## 
-    update_msg_bar()
-    
+    msg_redraw = True
         
 def scrolling_map(p, hs, s, m):
     """
@@ -135,12 +134,13 @@ def handle_mouse():
 
 
 def handle_keys():
-    global fov_recompute
+    global fov_recompute, pause
     if key.vk == libtcod.KEY_ENTER and key.lalt:
         #Alt+Enter: toggle fullscreen
         libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
     elif key.vk == libtcod.KEY_ESCAPE:
         return "exit"  #exit game
+    
     
     if game_state == "playing":
         #movement keys
@@ -173,6 +173,9 @@ def handle_keys():
         elif key.vk == libtcod.KEY_KP5:
             player_move_or_attack(0, 0)
             pass  #do nothing ie wait for the monster to come to you
+        elif key.vk == libtcod.KEY_SPACE:
+            pause = not pause
+            
         else:
             
             key_char = chr(key.c)
@@ -193,8 +196,9 @@ def player_move_or_attack(dx,dy):
         you.y = R.MAP_HEIGHT - 1
     
     fov_recompute = True
+    
 def play_game():
-    global key, mouse, land, you
+    global key, mouse, land, you, msg_redraw
 
     mouse = libtcod.Mouse()
     key = libtcod.Key()
@@ -209,6 +213,7 @@ def play_game():
         
         if not pause:
             advance_time()
+            
         player_action = handle_keys()
         
         if player_action == "exit":
@@ -218,9 +223,11 @@ def play_game():
         
         for object_ in R.objects:
             object_.clear(cam_x,cam_y)
-        render()
-        if R.msg_redraw == True:
+            
+        if R.msg_redraw:
             update_msg_bar()
+            
+        render()
 
 def clear_consoles():
     for x in range(R.MAP_VIEW_WIDTH): #this refers to the SCREEN position.
@@ -263,6 +270,8 @@ def render():
     libtcod.console_flush()  
 
 def update_msg_bar():
+    global msg_redraw
+    
     libtcod.console_clear(message_bar)
     libtcod.console_set_default_foreground(message_bar, libtcod.white)
     libtcod.console_print_ex(message_bar, 0, 0, libtcod.BKGND_NONE, libtcod.LEFT, get_date())
@@ -274,7 +283,7 @@ def update_msg_bar():
         y += 1          
     libtcod.console_blit(message_bar, 0, 0, R.PANEL_WIDTH, R.PANEL_HEIGHT, 0 , 0, R.PANEL_Y)
     #libtcod.console_flush() #if this fluch is here it flickers the console.  
-    R.msg_redraw = False
+    msg_redraw = False
     
 def get_date():
     return str(date[0]) + " " + str(date[1][0]) + " " + str(date[1][2]) + " " + str(date[2][0])

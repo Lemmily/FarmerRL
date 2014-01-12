@@ -99,7 +99,7 @@ class Mover(Object):
 class Player(Mover):
     def __init__(self):
         Mover.__init__(self, name = "Player", char = "&")
-        self.skills = Skills()
+        self.stats = Stats()
         self.actions = {}
         self.actions["till"] = act_till  
         self.actions["plant"] = act_plant 
@@ -155,6 +155,7 @@ class Plant(Object):
 #this could also be kept in alookup table, with th eplant object just holding the type and 
 # age of the plant. Possibly the boolean for harvestable? (Probably not worth it though?)       
             
+attributes = ["str","con","dex","int","cha","wis", "luc"]
 
 skill_list_1 = [ #// 0_name:string, 1_attribute, 2_needTraining:Boolean, 3_desc:String,[4_dependsOn],[5_dependants]
                  ["Appraise", "int", False, "Used to analyse an item for monetary value, and contributing factors",["none"],["none"]],
@@ -167,26 +168,40 @@ skill_list_1 = [ #// 0_name:string, 1_attribute, 2_needTraining:Boolean, 3_desc:
                  ["Plant Expertise", "int", False, "To successfully identify plants and the information about them; this skill is required",["none"],["none"]],
                 ]
 # Skill manager
-class Skills:
+class Stats:
     def __init__(self):
-        self.dict = {}
+        self.skills = {}
         for line in skill_list_1:
-            self.dict[line[0].lower()] = Skill( line[0], line[1])
+            self.skills[line[0].lower()] = Skill( line[0], line[1])
+            
+        self.attr = {}
+        for stat in attributes:
+            self.attr[stat] = Attribute(stat, 10)
         
         
     def skill_level_check(self,skill):
         
-        sk_exp = self.dict[skill].exp
+        sk_exp = self.skills[skill].exp
         
         return sk_exp #TODO: nake lookup table to look up what level the skill is at. for now just retrun this/
     
     def has(self, skill):
-        if self.dict.has_key(skill):
+        if self.skills.has_key(skill):
             return True
         return False
     
     def get_level(self,skill):
-        return self.dict[skill].level
+        return self.skills[skill].level
+    
+    def skill_check(self, name):
+        if self.has(name):
+            skill = self.skills[name]
+            return roll_d20() + skill.level + self.attr[skill.group].modifier
+    
+    def gain_exp(self,amount, skill):
+        #TODO: this is temporpary - I want to have exp spread over multiple skills. similar to crawl.
+        self.skills[skill].gain(amount)
+        
 
 class Skill:
     def __init__(self,name,group="None"):
@@ -194,8 +209,41 @@ class Skill:
         self.group = group
         self.exp = 0
         self.level = 1
-        self.aptitude =1#probably somewhere better to hold this.
+        self.aptitude = 1 #speed at which they gain skill levels.... probably somewhere better to hold this.
+       
+    def gain(self,amount):
+        self.exp += amount
+        if self.exp > 100:
+            self.level += 1
+            self.exp -= 100
+            R.ui.message("You have leveled up " + self.name + " to level " + str(self.level))
         
+class Attribute():
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+        
+    
+    @property
+    def modifier(self):
+        if self.value <= 1: return -5
+        elif self.value < 4: return -4
+        elif self.value < 6: return -3
+        elif self.value < 8: return -2
+        elif self.value < 10: return -1
+        elif self.value < 12: return 0
+        elif self.value < 14: return 1
+        elif self.value < 16: return 2
+        elif self.value < 18: return 3
+        elif self.value <= 20: return 5
+        elif self.value > 20: return 6
+
+         
+##########
+#
+#   MAP CHECKS
+#
+############ 
 def is_blocked(x, y):
     #first test the map tile
     if x > len(R.tiles) - 1 or x < 0:
@@ -219,16 +267,16 @@ def is_blocked(x, y):
 
 def act_till(entity):
     print "tillllll"
-    if entity.skills and entity.skills.has("tilling"):
+    if entity.stats and entity.stats.has("tilling"):
         
         tile = R.land.get_tile(entity.x,entity.y)
-        skill = entity.skills.get_level("tilling")
+        skill = entity.stats.skill_check("tilling")
         
-        # do the skill check here.
-        
-        #with an amount to do the tilling by.
-        amount = 10
-        tile.till(amount)
+        if skill > tile.difficulty:
+            #with an amount to do the tilling by.
+            amount = skill - tile.difficulty
+            if tile.till(amount):
+                entity.stats.gain_exp(tile.difficulty * (tile.difficulty/entity.stats.skills["tilling"].level), "tilling")
         
         
 def act_plant(entity, inventory = None):
@@ -255,7 +303,13 @@ def act_plant(entity, inventory = None):
     else:
         R.ui.message("You have no plantable items!", libtcod.dark_green)
         
-    
+        
+##########
+#
+#    OTHER
+#
+##########
+
         
         
 def choice_menu(prompt, options, size):
@@ -264,4 +318,7 @@ def choice_menu(prompt, options, size):
         return -1
     else:
         return choice 
+    
+def roll_d20():
+    return libtcod.random_get_int(0, 1, 20)
 

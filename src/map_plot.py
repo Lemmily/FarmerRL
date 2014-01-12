@@ -8,6 +8,13 @@ import libtcodpy as libtcod
 import R
 
 
+field_types = {"field": [0,2],
+               "clay": [25,40],
+               "gravel": [40,60],
+               "rock": [90,100]
+               
+               }
+
 class Tile:
     def __init__(self, x, y, blocks, blocks_sight=False, char=" ", bg = [60,100,80], fg= [255,255,255], field = False):
         self.x = x
@@ -49,6 +56,10 @@ class Tile:
     def bg(self):
         return self.colour_bg
 
+    @property
+    def difficulty(self):
+        return field_types[self.type][1] #libtcod.random_get_int(0, field_types[self.type][0], field_types[self.type][1])
+    
     def till(self,tilling):
         if self.type is "field":
             self.tilled += tilling
@@ -57,6 +68,9 @@ class Tile:
             
             if self.tilled > 50 and self.char != "=":
                 self.char = "="
+                R.ui.message("The field looks more like a field now!")
+                return True
+            
                 
     def sow(self, plant):
         if self.type is "field":
