@@ -78,6 +78,13 @@ class Tile:
             self.char = plant.char
             self.colour_fg = libtcod.Color(10,200,30)
     
+    def remove_plant(self):
+        R.land.plants.remove(self.plant)
+        self.plant = None
+        self.char = "~"
+        self.tilled = 0
+        self.colour_fg = libtcod.Color(libtcod.random_get_int(0,125,145), libtcod.random_get_int(0,60,70), libtcod.random_get_int(0,20,40))
+    
 class Map:
     def __init__(self, w, h):
         self.w = w
@@ -88,6 +95,11 @@ class Map:
                              char = "~")
             for iy in range(h) ]
                 for ix in range(w)]
+        
+        self.plants = []
+        
+    def add_plant(self, plant):
+        self.plants.append(plant)
         
     def get_tile(self,x,y):
         return self.tiles[x][y]

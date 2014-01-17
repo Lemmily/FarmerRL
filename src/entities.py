@@ -103,9 +103,13 @@ class Player(Mover):
         self.actions = {}
         self.actions["till"] = act_till  
         self.actions["plant"] = act_plant 
+        self.actions["harvest"] = act_harvest
+        
         self.inventory = {"plantable": [],
-                          "produce": []}
-        self.inventory["plantable"].append(Seed("corn"))
+                          "produce": {}}
+        for key in plant_types:
+            self.inventory["plantable"].append(Seed(key))
+        
 class Item(Object):
     def __init__(self):
         Object.__init__()
@@ -124,21 +128,32 @@ class Seed(Object):
     def __init__(self, type_):
         self.type = type_
         self.season = plant_types[self.type][2]#planting season.
+        self.count = 10
         
+    def use(self, num = 1):
+        if self.count > 0:
+            self.count -= 1
+            return True
+        else:
+            return False
         
 class Plant(Object):
-    def __init__(self,type_):
+    def __init__(self,type_, x, y):
         self.age = 0
         self.harvestable = False 
         self.type = type_ 
+        self.count = 1
+        self.x = x
+        self.y = y
         
-    def age_up(self):
-        self.age += 1
+    def age_up(self, days = 1):
+        self.age += days
         self.check_harvestable()
         
     def check_harvestable(self):
         if self.age > plant_types[self.type][3]:
             self.harvestable = True
+            R.land.get_tile(self.x,self.y).char = plant_types[self.type][1][1]
     
     @property
     def char(self):
@@ -281,29 +296,51 @@ def act_till(entity):
         
 def act_plant(entity, inventory = None):
     print "plant"
-    if inventory is None:
-        if len(entity.inventory["plantable"]) > 0:
-            inventory = entity.inventory
+    tile = R.land.get_tile(entity.x,entity.y)
+    if tile.plant is None:
+        if inventory is None:
+            if len(entity.inventory["plantable"]) > 0:
+                inventory = entity.inventory
+            else:
+                R.ui.message("There are no seeds available!", libtcod.dark_green)
+                return
+        
+        options = []
+        for seed in inventory["plantable"]:
+            options.append(seed.type + " : " + str(seed.count))
+        choice = choice_menu("Which seed type?", options, 20)
+        if choice is not -1:
+            seed = inventory["plantable"][choice]
+            if seed.use(1):
+                if tile.tilled > 50:
+                    plant = Plant(seed.type,tile.x,tile.y)
+                    tile.sow(plant)
+                    R.land.add_plant(plant)
+                else:
+                    R.ui.message("The field isn't tilled enough.", libtcod.dark_green)
+            else:
+                R.ui.message("There's not enough seeds.", libtcod.yellow)
         else:
-            R.ui.message("There are no seeds available!", libtcod.dark_green)
-            return
-    
-    options = []
-    for plant in inventory["plantable"]:
-        options.append(plant.season + " : " + plant.type)
-    choice = choice_menu("Which plant?", options, 20)
-    if choice is not -1:
-        seed = inventory["plantable"][choice]
-        tile = R.land.get_tile(entity.x,entity.y)
-        if tile.tilled > 50:
-            plant = Plant(seed.type)
-            tile.sow(plant)
-        else:
-            R.ui.message("The field isn't tilled enough.", libtcod.dark_green)
+            R.ui.message("You have no plantable items!", libtcod.dark_green)
     else:
-        R.ui.message("You have no plantable items!", libtcod.dark_green)
+        R.ui.message("There's already a plant here!", libtcod.dark_red)
         
-        
+def act_harvest(entity):
+    tile = R.land.get_tile(entity.x,entity.y) 
+    if tile.plant is not None and tile.plant is not None:
+        if tile.plant.harvestable is True:
+            for i in range(len(entity.inventory["produce"])):
+                if entity.inventory["produce"][i].type == tile.plant.type:
+                    entity.inventory["produce"][i].count += 1
+            for i in range(len(entity.inventory["plantable"])):
+                if entity.inventory["plantable"][i].type == tile.plant.type:
+                    entity.inventory["plantable"][i].count += 1
+            R.ui.message("You just harvested a " + tile.plant.type)
+            tile.remove_plant()
+        else:
+            R.ui.message("you can't harvest the " + tile.plant.type + " just yet!", libtcod.red)
+            R.ui.message("days left: " + str(plant_types[tile.plant.type][3] - tile.plant.age), libtcod.red)
+            
 ##########
 #
 #    OTHER

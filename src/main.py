@@ -46,6 +46,8 @@ turns = 0
 pause = False
 fov_recompute = True
 
+debug_mode = False
+
 def new_game():
     global mouse, key, fov_recompute, cam_x, cam_y, game_state
     global you, land, objects  
@@ -83,6 +85,9 @@ def advance_time():
         date[1][0] = DAYS[newDay - 1][0] #set the new day name - newDay -1 because array 0ness
         date[1][1] = newDay #day reference value
         date[1][2] += 1 #increase the actual numerical date by a day
+        
+        for plant in R.land.plants:
+            plant.age_up()
         
     if date[1][2] > date[2][2]: #// if current day is more than the months max days, increase month.
         oldMonth = date[2][1];
@@ -134,7 +139,7 @@ def handle_mouse():
 
 
 def handle_keys():
-    global fov_recompute, pause
+    global fov_recompute, pause, debug_mode
     if key.vk == libtcod.KEY_ENTER and key.lalt:
         #Alt+Enter: toggle fullscreen
         libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
@@ -182,9 +187,21 @@ def handle_keys():
             
             if key_char == "t":
                 you.actions["till"](you)
+                fov_recompute = True
             elif key_char == "p":
                 you.actions["plant"](you)
                 fov_recompute = True
+            elif key_char == "h":
+                you.actions["harvest"](you)
+                fov_recompute = True
+            elif key_char == "d":
+                debug_mode = not debug_mode
+            
+            if debug_mode:
+                if key_char == "a":
+                    for plant in R.land.plants:
+                        plant.age_up(10)
+                
             
 def player_move_or_attack(dx,dy):
     global fov_recompute
