@@ -1,9 +1,8 @@
-'''
+"""
 Created on 23 Dec 2013
 
 @author: Emily
-'''
-
+"""
 
 SCREEN_WIDTH = 80
 SCREEN_HEIGHT = 60
@@ -12,13 +11,13 @@ LIMIT_FPS = 20
 
 INFO_BAR_WIDTH = 25
 
-MAP_VIEW_WIDTH = SCREEN_WIDTH - INFO_BAR_WIDTH #viewport for map screen
+MAP_VIEW_WIDTH = SCREEN_WIDTH - INFO_BAR_WIDTH  # viewport for map screen
 MAP_VIEW_WIDTH_HALF = MAP_VIEW_WIDTH / 2
 MAP_VIEW_HEIGHT = 40
 MAP_VIEW_HEIGHT_HALF = 20
 
-MAP_WIDTH = 80 #actual map size 
-MAP_HEIGHT = 60 #map size
+MAP_WIDTH = 80  # actual map size
+MAP_HEIGHT = 60  # map size
 
 PANEL_HEIGHT = SCREEN_HEIGHT - MAP_VIEW_HEIGHT
 PANEL_WIDTH = SCREEN_WIDTH - INFO_BAR_WIDTH
@@ -40,6 +39,5 @@ land = None
 tiles = []
 objects = []
 
-
-### FLAGS
+# ## FLAGS
 msg_redraw = True
