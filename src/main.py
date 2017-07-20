@@ -45,7 +45,7 @@ game_speed = NORM_SPEED
 turns = 0
 pause = False
 fov_recompute = True
-
+info_redraw = True
 debug_mode = False
 
 
@@ -206,7 +206,7 @@ def handle_keys():
 
 
 def player_move_or_attack(dx, dy):
-    global fov_recompute
+    global fov_recompute, info_redraw
     print "I MOVED"
     you.move_p(dx, dy)
     if you.x >= R.MAP_WIDTH:
@@ -215,6 +215,7 @@ def player_move_or_attack(dx, dy):
         you.y = R.MAP_HEIGHT - 1
 
     fov_recompute = True
+    info_redraw = True
 
 
 def play_game():
@@ -247,6 +248,9 @@ def play_game():
         if R.msg_redraw:
             update_msg_bar()
 
+        if info_redraw:
+            update_inf_bar()
+
         render()
 
 
@@ -278,8 +282,8 @@ def render():
                 else:
                     libtcod.console_set_char_foreground(con, x, y, libtcod.chartreuse)
                     # libtcod.console_set_char(con, x, y, " ")
-                    libtcod.console_put_char_ex(con, x, y, " ", libtcod.black, libtcod.black)
-                    libtcod.console_set_char(con_char, x, y, " ")
+                    libtcod.console_put_char_ex(con, x, y, ' ', libtcod.black, libtcod.black)
+                    libtcod.console_set_char(con_char, x, y, ' ')
         for thing in R.objects:
             thing.draw(cam_x, cam_y)
 
@@ -308,12 +312,40 @@ def update_msg_bar():
     msg_redraw = False
 
 
+def update_inf_bar():
+    global info_redraw
+    print "Info bar update"
+    libtcod.console_clear(inf)
+    libtcod.console_set_default_foreground(inf, libtcod.white)
+    libtcod.console_print_ex(inf, 0, 0, libtcod.BKGND_NONE, libtcod.LEFT, "INFO:")
+    y = 2
+    for (line, colour) in get_player_tile():
+        libtcod.console_set_default_foreground(inf, colour)
+        libtcod.console_print_ex(inf, R.MSG_X, y, libtcod.BKGND_NONE, libtcod.LEFT, line)
+        y += 1
+    libtcod.console_blit(inf, R.MAP_VIEW_WIDTH, 0, R.INFO_BAR_WIDTH, R.PANEL_HEIGHT, 0, 0, 0)
+    info_redraw = False
+
+
+def get_player_tile():
+    msg = [("" + str(you.x) + "," + str(you.y), libtcod.white)]
+
+    tile = R.tiles[you.x][you.y]
+
+    msg.append(("type :- " + tile.type, libtcod.light_amber))
+    msg.append(("tilled :- " + str(tile.tilled) + "/100", libtcod.green))
+    msg.append(("challenge :- " + str(tile.difficulty), libtcod.dark_green))
+
+    print msg
+    return msg
+
+
 def get_date():
     return str(date[0]) + " " + str(date[1][0]) + " " + str(date[1][2]) + " " + str(date[2][0])
 
 
 def main_menu():
-    init();
+    init()
 
     while not libtcod.console_is_window_closed():
         libtcod.console_set_default_foreground(0, libtcod.light_yellow)
